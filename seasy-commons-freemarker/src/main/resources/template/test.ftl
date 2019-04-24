@@ -1,0 +1,1 @@
+hello ${username}，您准备好了吗？

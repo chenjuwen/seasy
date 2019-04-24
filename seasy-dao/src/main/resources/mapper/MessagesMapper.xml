@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.seasy.dao.mybatis.mapper.MessagesMapper" >
+	<resultMap id="messagesResultMap" type="com.seasy.interfaces.dto.MessagesDTO">
+		<id property="id" column="ID" jdbcType="BIGINT" />
+		<result property="type" column="TYPE" jdbcType="VARCHAR" />
+		<result property="contents" column="CONTENTS" jdbcType="VARCHAR" />
+		<result property="sendUserid" column="SEND_USERID" jdbcType="BIGINT" />
+		<result property="sendUserName" column="SEND_USERNAME" jdbcType="VARCHAR" />
+		<result property="receiveId" column="RECEIVE_ID" jdbcType="VARCHAR" />
+		<result property="receiveYes" column="RECEIVE_YES" jdbcType="VARCHAR" />
+		<result property="deleteYes" column="DELETE_YES" jdbcType="VARCHAR" />
+		<result property="operator" column="OPERATOR" jdbcType="VARCHAR" />
+		<result property="operateTime" column="OPERATE_TIME" jdbcType="TIMESTAMP" />
+		<result property="readed" column="READED" javaType="Boolean" jdbcType="CHAR" />
+  	</resultMap>
+  
+  	<select id="selectByPrimaryKey" resultMap="messagesResultMap" parameterType="Long">
+    	select
+    		a.ID, a.TYPE, a.CONTENTS, a.SEND_USERID, a.RECEIVE_ID, a.RECEIVE_YES, 
+    		a.DELETE_YES, a.OPERATOR, a.OPERATE_TIME, b.username as SEND_USERNAME
+    	from messages a
+    	left join users b on a.SEND_USERID=b.user_id
+    	where a.id = #{value}
+  	</select>
+  	
+  	<select id="selectByPage" resultMap="messagesResultMap" parameterType="Map">
+    	select
+    		a.ID, a.TYPE, a.CONTENTS, a.SEND_USERID, a.RECEIVE_ID, a.RECEIVE_YES, 
+    		a.DELETE_YES, a.OPERATOR, a.OPERATE_TIME, b.username as SEND_USERNAME
+    	from messages a
+    	left join users b on a.SEND_USERID=b.user_id
+    	where 1=1
+    	<if test="type != null">
+    		and a.type = #{type}
+    	</if>
+    	<if test="contents != null">
+    		<![CDATA[ and dbms_lob.instr(a.contents, '${contents}', 1, 1)>0 ]]>
+    	</if>
+    	order by a.OPERATE_TIME DESC
+  	</select>
+  	
+  	<select id="selectMessagesByUserid" resultMap="messagesResultMap" parameterType="String">
+    	select
+    		a.ID, a.TYPE, a.CONTENTS, a.SEND_USERID, a.RECEIVE_ID, a.RECEIVE_YES, 
+    		a.DELETE_YES, a.OPERATOR, a.OPERATE_TIME, b.username as SEND_USERNAME,
+    		case 
+    			<![CDATA[
+    			when (a.TYPE='ALL' and (dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1)<=0) and (dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1)<=0)) then '0'
+    			when (a.TYPE!='ALL' and dbms_lob.instr(a.RECEIVE_ID, '${value};', 1, 1)>0 and (dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1)<=0)) then '0'
+    			]]>
+    			else '1'
+    		end READED
+    	from messages a
+    	left join users b on a.SEND_USERID=b.user_id
+    	where 1=1
+    	and (
+    		<![CDATA[
+   				(a.TYPE='ALL' and (dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1)<=0))
+   				 or
+   				(a.TYPE!='ALL' and dbms_lob.instr(a.RECEIVE_ID, '${value};', 1, 1)>0)
+    		]]>
+    	)
+    	order by a.OPERATE_TIME DESC
+  	</select>
+  	
+  	<select id="selectUnreadMessagesByUserid" resultMap="messagesResultMap" parameterType="String">
+    	select
+    		a.ID, a.TYPE, a.CONTENTS, a.SEND_USERID, a.RECEIVE_ID, a.RECEIVE_YES, 
+    		a.DELETE_YES, a.OPERATOR, a.OPERATE_TIME, b.username as SEND_USERNAME
+    	from messages a
+    	left join users b on a.SEND_USERID=b.user_id
+    	where 1=1
+    	and (
+    		<![CDATA[
+    		(
+    			a.TYPE='ALL' 
+    			and (dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.DELETE_YES, '${value};', 1, 1)<=0)
+    			and (dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1)<=0) 
+    		)
+    		or
+    		(
+    			a.TYPE!='ALL' 
+    			and dbms_lob.instr(a.RECEIVE_ID, '${value};', 1, 1)>0 
+    			and (dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(a.RECEIVE_YES, '${value};', 1, 1)<=0)
+    		)
+    		]]>
+    	)
+    	order by a.OPERATE_TIME DESC
+  	</select>
+  	
+  	<select id="selectUnreadCountByUserid" resultType="Integer" parameterType="String">
+    	select count(ID) as count
+    	from messages
+    	where 1=1
+    	and (
+    		<![CDATA[
+    		(
+    			TYPE='ALL' 
+    			and (dbms_lob.instr(DELETE_YES, '${value};', 1, 1) is null or dbms_lob.instr(DELETE_YES, '${value};', 1, 1)<=0)
+    			and (dbms_lob.instr(RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(RECEIVE_YES, '${value};', 1, 1)<=0) 
+    		)
+    		or
+    		(
+    			TYPE!='ALL' 
+    			and dbms_lob.instr(RECEIVE_ID, '${value};', 1, 1)>0 
+    			and (dbms_lob.instr(RECEIVE_YES, '${value};', 1, 1) is null or dbms_lob.instr(RECEIVE_YES, '${value};', 1, 1)<=0)
+    		)
+    		]]>
+    	)
+  	</select>
+  	
+  	<insert id="insert" parameterType="com.seasy.interfaces.dto.MessagesDTO"
+  		useGeneratedKeys="true" keyProperty="id">
+  		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="id">
+			SELECT SEQ_MESSAGES.Nextval as id from DUAL
+		</selectKey>
+    	insert into messages (ID, TYPE, CONTENTS, SEND_USERID, RECEIVE_ID, RECEIVE_YES, OPERATOR, OPERATE_TIME, DELETE_YES) 
+ 		values (#{id}, #{type}, #{contents}, #{sendUserid}, #{receiveId}, #{receiveYes}, #{operator}, #{operateTime}, #{deleteYes})
+  	</insert>
+  	
+  	<delete id="delete" parameterType="Long">
+  		delete from messages where ID = #{value}
+  	</delete>
+  	
+  	<update id="deleteUserMessageWithAll" parameterType="Map">
+  		update messages set DELETE_YES = DELETE_YES || '${userId};'
+  		where 1=1
+   		<![CDATA[
+   			and (dbms_lob.instr(DELETE_YES, '${userId};', 1, 1) is null or dbms_lob.instr(DELETE_YES, '${userId};', 1, 1)<=0)
+   		]]>
+  		and TYPE = 'ALL'
+  		and ID = #{id}
+  	</update>
+  	
+  	<update id="deleteUserMessageWithNoAll" parameterType="Map">
+  		update messages set 
+  			RECEIVE_ID = replace(RECEIVE_ID, '${userId};', ''),
+  			RECEIVE_YES = replace(RECEIVE_YES, '${userId};', '')
+  		where 1=1
+   		<![CDATA[
+   			and dbms_lob.instr(RECEIVE_ID, '${userId};', 1, 1)>0
+   		]]>
+  		and TYPE != 'ALL'
+    	and ID = #{id}
+  	</update>
+  	
+  	<select id="selectUserIdsByRole" resultType="String" parameterType="String">
+    	select user_id from (
+		  select user_type,ltrim(max(sys_connect_by_path(user_id, ';')), ';')||';' user_id from (
+		    select user_type,user_id, ROW_NUMBER() OVER(PARTITION BY user_type ORDER BY user_id) rn from (
+		      select '1' user_type,user_id from users u
+		      where 1=1
+	    	  and exists (select 1 from user_role where user_id=u.user_id and role_id in (${value}))
+		    )
+		  )
+		  start with rn=1
+		  connect by rn-1 = prior rn
+		  and user_type=prior user_type
+		  group by user_type
+		)
+  	</select>
+  	
+</mapper>

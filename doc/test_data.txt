@@ -1,0 +1,69 @@
+-- users
+insert into users (USER_ID, LOGIN_NAME, USERNAME, PASSWORD, SALT, ENABLED)
+values (1, 'admin', 'Administrator', '01a049503e8965d97e9dfc745ee3d47376d5d639', '3088e21ba007277f', 1);
+
+insert into users (USER_ID, LOGIN_NAME, USERNAME, PASSWORD, SALT, ENABLED)
+values (2, 'test', 'Test', '5b70266f43cd722b62b3dcd9d7c90b518872ed46', 'aafc93155a9a334b', 1);
+
+
+-- roles
+insert into ROLES (ROLE_ID, ROLE_NO, ROLE_NAME, ROLE_DESC) values (1, 'admin', 'Administrator', '系统管理员');
+
+insert into ROLES (ROLE_ID, ROLE_NO, ROLE_NAME, ROLE_DESC) values (2, 'user', 'User', '普通用户');
+
+-- user_role
+insert into USER_ROLE (USER_ID, ROLE_ID)
+values (1, 1);
+
+insert into USER_ROLE (USER_ID, ROLE_ID)
+values (2, 2);
+
+-- resource
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (1, 'root', 'ROOT', null, null);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (2, 'mnuAdmin', '系统管理', null, 1);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (3, 'mnuGood', '商品管理', null, 1);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (4, 'mnuPoint', '积分管理', null, 1);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (5, 'mnuOrder', '订单管理', null, 1);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (6, 'mnuReport', '统计报表', null, 1);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (201, 'mnuUser', '用户管理', null, 2);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (202, 'mnuRole', '角色管理', 'admin/role/list', 2);
+
+insert into RESOURCES (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID)
+values (203, 'mnuResource', '资源管理', null, 2);
+
+-- role resource
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 2);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 4);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 5);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 6);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 201);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 202);
+
+insert into ROLE_RESOURCE (ROLE_ID, RES_ID)
+values (1, 203);

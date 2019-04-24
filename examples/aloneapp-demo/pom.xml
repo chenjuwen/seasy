@@ -1,0 +1,209 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.seasy.examples</groupId>
+  <artifactId>aloneapp-demo</artifactId>
+  <packaging>war</packaging>
+  <version>1.0.0</version>
+  
+  <properties>
+  	<war.name>aloneapp-demo</war.name>
+  	<jdk.version>1.7</jdk.version>
+  </properties>
+
+  <dependencies>
+  	<!-- seasy -->
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-interface</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-core</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-commons-mail</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-dao</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-service</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-web</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.seasy.platform</groupId>
+  		<artifactId>seasy-web-security-shiro</artifactId>
+  		<version>1.0.0</version>
+	</dependency>
+	 
+	<!-- log -->
+	<dependency>
+  		<groupId>org.slf4j</groupId>
+  		<artifactId>slf4j-api</artifactId>
+  		<version>1.7.21</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.slf4j</groupId>
+  		<artifactId>slf4j-log4j12</artifactId>
+  		<version>1.7.21</version>
+	</dependency>
+	
+	<!-- fileupload -->
+	<dependency>
+  		<groupId>commons-fileupload</groupId>
+  		<artifactId>commons-fileupload</artifactId>
+  		<version>1.3</version>
+	</dependency>
+	<dependency>
+  		<groupId>commons-io</groupId>
+  		<artifactId>commons-io</artifactId>
+  		<version>1.4</version>
+	</dependency>
+
+	<!-- spring -->
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-web</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-webmvc</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	
+	<dependency>
+  		<groupId>org.aspectj</groupId>
+  		<artifactId>aspectjweaver</artifactId>
+  		<version>1.8.9</version>
+	</dependency>
+	
+	<dependency>
+  		<groupId>com.fasterxml.jackson.core</groupId>
+  		<artifactId>jackson-core</artifactId>
+  		<version>2.4.3</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.fasterxml.jackson.core</groupId>
+  		<artifactId>jackson-databind</artifactId>
+  		<version>2.4.3</version>
+	</dependency>
+	<dependency>
+  		<groupId>com.fasterxml.jackson.core</groupId>
+  		<artifactId>jackson-annotations</artifactId>
+  		<version>2.4.3</version>
+	</dependency>
+  </dependencies>
+  
+  <build>
+  	<plugins>
+  		<!-- compiler插件, 设定JDK版本 -->
+  		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.5.1</version>
+			<configuration>
+				<source>${jdk.version}</source>
+				<target>${jdk.version}</target>
+				<showWarnings>true</showWarnings>
+			</configuration>
+		</plugin>
+		
+		<plugin>  
+            <groupId>org.apache.maven.plugins</groupId>  
+            <artifactId>maven-deploy-plugin</artifactId>  
+            <version>2.5</version>  
+        </plugin> 
+		
+		<!-- 打包时跳过junit单元测试 -->
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.12.3</version>
+			<configuration>
+				<skip>true</skip>
+			</configuration>
+		</plugin>
+
+		<!-- war打包插件, 设定war包名称不带版本号 -->
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>2.2</version>
+			<configuration>
+				<warName>${war.name}</warName>
+			</configuration>
+		</plugin>
+		
+		<!-- jetty插件 -->
+		<plugin>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty-maven-plugin</artifactId>
+			<version>8.1.16.v20140903</version>
+			<configuration>
+				<scanIntervalSecond>10</scanIntervalSecond>
+				<webAppConfig>  
+                    <contextPath>/${war.name}</contextPath>  
+                </webAppConfig>
+                 <connectors>  
+                    <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">  
+                        <port>8888</port>  
+                        <maxIdleTime>60000</maxIdleTime>  
+                    </connector>  
+                </connectors>
+                
+				<systemProperties>
+					<systemProperty>
+						<name>spring.profiles.active</name>
+						<value>development</value>
+					</systemProperty>
+				</systemProperties>
+				<useTestClasspath>true</useTestClasspath>
+			</configuration>
+		</plugin>
+  	</plugins>
+  	
+    <finalName>${war.name}</finalName>
+  </build>
+  
+  <repositories>
+    <repository>
+      	<snapshots>
+        	<enabled>false</enabled>
+      	</snapshots>
+      	<id>gsafc-repo</id>
+		<url>http://localhost:8081/nexus/content/repositories/Csair/</url>
+		<releases>
+			<enabled>true</enabled> 
+		</releases>
+    </repository>
+  </repositories>
+  
+  <pluginRepositories>
+    <pluginRepository>
+      	<releases>
+			<enabled>true</enabled> 
+        	<updatePolicy>never</updatePolicy>
+      	</releases>
+      	<snapshots>
+        	<enabled>false</enabled>
+      	</snapshots>
+      	<id>gsafc-repo</id>
+		<url>http://localhost:8081/nexus/content/repositories/Csair/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  
+</project>

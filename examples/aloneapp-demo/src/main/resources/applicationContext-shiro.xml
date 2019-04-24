@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd">
+       
+	<bean id="seasyEhcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache/ehcache-shiro.xml"/>
+	</bean>
+	
+	<bean id="seasyAuthorizingRealm" class="com.seasy.web.security.shiro.SeasyAuthorizingRealm" />
+
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="seasyAuthorizingRealm" />
+		<property name="cacheManager" ref="seasyEhcacheManager" />
+	</bean>
+		
+	<bean id="seasyFormAuthenticationFilter" class="com.seasy.web.security.shiro.filter.SeasyFormAuthenticationFilter"/>
+	
+	<bean id="seasyResourceAuthenticationFilter" class="com.seasy.web.security.shiro.filter.SeasyResourceAuthenticationFilter">
+		<property name="unauthorizedUrl" value="/common/403.jsp" />
+	</bean>
+	
+	<bean id="seasyRoleAuthenticationFilter" class="com.seasy.web.security.shiro.filter.SeasyRoleAuthenticationFilter">
+		<property name="unauthorizedUrl" value="/common/403.jsp" />
+	</bean>
+	
+	<bean id="logoutFilter" class="org.apache.shiro.web.filter.authc.LogoutFilter"> 
+        <property name="redirectUrl" value="/index.jsp" /> 
+    </bean> 
+	
+	<!-- 此处的id值要与web.xml的shiro过滤器的filter-name值一致 -->
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/login" />
+		<property name="successUrl" value="/main" />
+		<!-- <property name="unauthorizedUrl" value="" /> -->
+		<property name="filters">
+            <map>
+                 <entry key="authc" value-ref="seasyFormAuthenticationFilter"/>
+                 <entry key="resourceAuth" value-ref="seasyResourceAuthenticationFilter"/>
+                 <entry key="anyRole" value-ref="seasyRoleAuthenticationFilter"/>
+                 <entry key="logout" value-ref="logoutFilter"/>
+            </map>
+        </property>
+		<!-- <property name="filterChainDefinitions">
+            <value>
+				/login = authc
+				/main = authc
+				/header = authc
+            </value>
+        </property> -->
+	</bean>
+	
+	<bean id="filterChainDefinitionsService" class="com.seasy.web.security.shiro.filterchain.DBSeasyFilterChainService">
+		<property name="definitions">
+			<value>
+				/login = authc
+				/main = authc
+				/header = authc
+				/menu = authc
+				/loadDefinitions = authc
+				/personal = authc
+				/logout = logout
+				/index.jsp = anon
+				/kaptcha/** = anon
+				/common/** = anon
+				/css/** = anon
+				/images/** = anon
+				/js/** = anon
+				/locale/** = anon
+			</value>
+		</property>
+		<property name="afterDefinitions">
+			<map>
+				<entry key="/**" value="user,resourceAuth" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+ 	
+</beans>

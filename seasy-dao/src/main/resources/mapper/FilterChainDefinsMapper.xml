@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.seasy.dao.mybatis.mapper.FilterChainDefinsMapper" >
+  	<select id="findAll" resultType="com.seasy.interfaces.dto.FilterChainDefinsDTO">
+  		select
+  			ID as id, 
+  			CHAIN_NAME as chainName, 
+  			CHAIN_DEFINITION as chainDefinition, 
+  			CHAIN_ORDER as chainOrder
+    	from filter_chain_defins
+    	order by CHAIN_ORDER desc
+  	</select>
+  	
+  	<select id="selectById" resultType="com.seasy.interfaces.dto.FilterChainDefinsDTO" parameterType="Long">
+  		select
+  			ID as id, 
+  			CHAIN_NAME as chainName, 
+  			CHAIN_DEFINITION as chainDefinition, 
+  			CHAIN_ORDER as chainOrder
+    	from filter_chain_defins
+    	where ID = #{value} 
+  	</select>
+  	
+  	<insert id="insert" parameterType="com.seasy.interfaces.dto.FilterChainDefinsDTO" 
+  		useGeneratedKeys="true" keyProperty="id">
+  		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="id">
+			SELECT seq_filter_chain_defins.Nextval as id from DUAL
+		</selectKey>
+  		insert into filter_chain_defins (ID, CHAIN_NAME, CHAIN_DEFINITION, CHAIN_ORDER) 
+ 		values (#{id}, #{chainName}, #{chainDefinition}, #{chainOrder})
+  	</insert>
+  	
+  	<update id="update" parameterType="com.seasy.interfaces.dto.FilterChainDefinsDTO">
+  		update filter_chain_defins set 
+			CHAIN_NAME = #{chainName},
+			CHAIN_DEFINITION = #{chainDefinition},
+			CHAIN_ORDER = #{chainOrder}
+		where ID = #{id}
+  	</update>
+  	
+  	<delete id="delete" parameterType="Long">
+  		delete from filter_chain_defins where id = #{value}
+  	</delete>
+  	
+</mapper>

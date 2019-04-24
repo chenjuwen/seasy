@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.seasy.dao.mybatis.mapper.ResourcesMapper" >
+	<resultMap id="resourceResultMap" type="com.seasy.interfaces.dto.ResourcesDTO">
+		<id property="id" column="ID" jdbcType="BIGINT" />
+		<result property="resNo" column="RES_NO" jdbcType="VARCHAR" />
+		<result property="resName" column="RES_NAME" jdbcType="VARCHAR" />
+		<result property="resUrl" column="RES_URL" jdbcType="VARCHAR" />
+		<result property="parentId" column="PARENT_ID" jdbcType="BIGINT" />
+		<result property="resImg" column="RES_IMG" jdbcType="VARCHAR" />
+		<result property="owner" column="OWNER" jdbcType="VARCHAR" />
+		<result property="remarks" column="REMARKS" jdbcType="VARCHAR" />
+		<result property="operator" column="OPERATOR" jdbcType="VARCHAR" />
+		<result property="operateTime" column="OPERATE_TIME" jdbcType="DATE" />
+  	</resultMap>
+  
+  	<select id="selectOne" resultMap="resourceResultMap" parameterType="Long">
+    	select
+    	ID, RES_NO, RES_NAME, RES_URL, PARENT_ID, RES_IMG, OWNER, REMARKS, OPERATOR, OPERATE_TIME
+    	from resources
+    	where ID = #{value}
+  	</select>
+  	
+  	<insert id="insert" parameterType="com.seasy.interfaces.dto.ResourcesDTO"
+  		useGeneratedKeys="true" keyProperty="id">
+  		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="id">
+			SELECT SEQ_RESOURCES.Nextval as id from DUAL
+		</selectKey>
+    	insert into resources (ID, RES_NO, RES_NAME, RES_URL, PARENT_ID, RES_IMG, OWNER, REMARKS, OPERATOR, OPERATE_TIME) 
+ 		values (#{id}, #{resNo}, #{resName}, #{resUrl}, #{parentId}, #{resImg}, #{owner}, #{remarks}, #{operator}, SYSDATE)
+  	</insert>
+  	
+  	<update id="update" parameterType="com.seasy.interfaces.dto.ResourcesDTO">
+    	update resources set 
+			RES_NO = #{resNo},
+			RES_NAME = #{resName},
+			RES_URL = #{resUrl},
+			PARENT_ID = #{parentId},
+			RES_IMG = #{resImg},
+			OWNER = #{owner},
+			REMARKS = #{remarks},
+			OPERATOR = #{operator},
+			OPERATE_TIME = SYSDATE
+		where ID = #{id}
+  	</update>
+  	
+  	<delete id="delete" parameterType="Long">
+  		delete from resources where id = #{value}
+  	</delete>	
+  	
+	<select id="getAllResource" resultMap="resourceResultMap">
+		select 
+			ID, RES_NO, RES_NAME, RES_URL, PARENT_ID, RES_IMG, OWNER, REMARKS, OPERATOR, OPERATE_TIME
+		from resources
+    	order by ID
+	</select>
+	
+  	<select id="selectByParentId" resultMap="resourceResultMap" parameterType="Long">
+    	select
+    		ID, RES_NO, RES_NAME, RES_URL, PARENT_ID, RES_IMG, OWNER, REMARKS, OPERATOR, OPERATE_TIME
+    	from resources
+    	where 1=1
+    	<if test="value != null">
+    		and PARENT_ID = #{value}
+    	</if>
+    	<if test="value == null">
+    		and PARENT_ID is null
+    	</if>
+  	</select>
+  	
+  	<select id="findExistsResNo" resultMap="resourceResultMap" parameterType="com.seasy.interfaces.dto.ResourcesDTO">
+    	select
+    		ID, RES_NO, RES_NAME, RES_URL, PARENT_ID, RES_IMG, OWNER, REMARKS, OPERATOR, OPERATE_TIME
+    	from resources 
+    	where RES_NO = #{resNo}
+    	<if test="id != null">
+    		and ID != #{id}
+    	</if>
+  	</select>
+  	
+  	<!-- Security -->
+  	<select id="selectByRoleId" resultType="com.seasy.interfaces.dto.ResourcesDTO" parameterType="Long">
+    	select 
+	      distinct 
+	      a.ID as id,
+	      a.RES_NO as resNo,
+	      a.RES_NAME as resName,
+	      a.RES_URL as resUrl,
+	      a.PARENT_ID as parentId,
+	      a.RES_IMG as resImg,
+		  a.OWNER as owner,
+		  a.REMARKS as remarks,
+	      a.OPERATOR as operator,
+	      a.OPERATE_TIME as operateTime
+		from resources a
+    	left join role_resource b on a.ID=b.RES_ID
+		left join roles c on b.ROLE_ID=c.ROLE_ID
+		where c.ROLE_ID = #{value}
+  	</select>
+  	
+  	<delete id="deleteRelationRole" parameterType="Long">
+  		delete from role_resource where role_id = #{value}
+  	</delete>
+  	
+  	<delete id="deleteRelationResource" parameterType="Long">
+  		delete from role_resource where RES_ID = #{value}
+  	</delete>
+  	
+  	<insert id="insertRoleResource" parameterType="com.seasy.interfaces.dto.RoleResourceDTO">
+    	insert into role_resource (ROLE_ID, RES_ID) values (#{roleId}, #{resId})
+  	</insert>
+  	
+</mapper>

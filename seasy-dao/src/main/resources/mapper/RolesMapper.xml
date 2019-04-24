@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.seasy.dao.mybatis.mapper.RolesMapper" >
+	<resultMap id="resultMap" type="com.seasy.interfaces.dto.RolesDTO">
+		<id property="id" column="ROLE_ID" jdbcType="BIGINT" />
+		<result property="roleNo" column="ROLE_NO" jdbcType="VARCHAR" />
+		<result property="roleName" column="ROLE_NAME" jdbcType="VARCHAR" />
+		<result property="roleDesc" column="ROLE_DESC" jdbcType="VARCHAR" />
+		<result property="operator" column="OPERATOR" jdbcType="VARCHAR" />
+		<result property="operateTime" column="OPERATE_TIME" jdbcType="DATE" />
+  	</resultMap>
+  
+  	<sql id="sql_column_list">
+    	ROLE_ID, ROLE_NO, ROLE_NAME, ROLE_DESC, OPERATOR, OPERATE_TIME
+  	</sql>
+  	
+  	<select id="getAllRoles" resultMap="resultMap">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES
+    	order by role_name
+  	</select>
+  	
+  	<select id="getUserAvailableRoles" resultMap="resultMap" parameterType="Long">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES r
+    	where 1=1
+    	and not exists (select 1 from user_role where role_id=r.role_id and user_id=#{value})
+    	order by role_name
+  	</select>
+  	
+  	<select id="selectByPage" resultMap="resultMap" parameterType="Map">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES
+    	where 1=1
+    	<if test="roleName != null">
+    		and ROLE_NAME like '%'||#{roleName}||'%'
+    	</if>
+    	order by role_name
+  	</select>
+  	
+  	<select id="selectById" resultMap="resultMap" parameterType="Long">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES where role_id = #{value}
+  	</select>
+  	
+  	<select id="selectByRoleNo" resultMap="resultMap" parameterType="String">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES where ROLE_NO = #{value}
+  	</select>
+  	
+  	<select id="findExistsRoleNo" resultMap="resultMap" parameterType="com.seasy.interfaces.dto.RolesDTO">
+    	select
+    	<include refid="sql_column_list" />
+    	from ROLES 
+    	where ROLE_NO = #{roleNo}
+    	<if test="id != null">
+    		and ROLE_ID != #{id}
+    	</if>
+  	</select>
+  	
+  	<insert id="insert" parameterType="com.seasy.interfaces.dto.RolesDTO" 
+  		useGeneratedKeys="true" keyProperty="id">
+  		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="id">
+			SELECT seq_roles.Nextval as id from DUAL
+		</selectKey>
+  		insert into roles (ROLE_ID, ROLE_NO, ROLE_NAME, ROLE_DESC, OPERATOR, OPERATE_TIME) 
+ 		values (#{id}, #{roleNo}, #{roleName}, #{roleDesc}, #{operator}, SYSDATE)
+  	</insert>
+  	
+  	<delete id="delete" parameterType="Long">
+  		delete from ROLES where ROLE_ID = #{value}
+  	</delete>
+  	
+  	<update id="update" parameterType="com.seasy.interfaces.dto.RolesDTO">
+  		update ROLES set 
+			ROLE_NO = #{roleNo},
+			ROLE_NAME = #{roleName},
+			ROLE_DESC = #{roleDesc},
+			OPERATOR = #{operator},
+			OPERATE_TIME = SYSDATE
+		where ROLE_ID = #{id}
+  	</update>
+  	
+  	<!-- UserRole -->
+  	<insert id="insertUserRoles" parameterType="com.seasy.interfaces.dto.UserRoleDTO">
+  		insert into USER_ROLE (USER_ID, ROLE_ID) values (#{userId}, #{roleId})
+  	</insert>
+  	
+  	<delete id="deleteUserRoles" parameterType="Map">
+  		delete from USER_ROLE where ROLE_ID in (${roleIds}) and USER_ID = #{userId}
+  	</delete>
+  	
+  	<!-- Security -->
+  	<select id="selectRolesByLoginName" resultMap="resultMap" parameterType="String">
+  		select r.ROLE_ID, r.ROLE_NO, r.role_name, r.role_desc, r.OPERATOR, r.OPERATE_TIME
+		from user_role ur
+		inner join roles r on ur.role_id=r.role_id
+		inner join users u on ur.user_id=u.user_id
+		where u.login_name = #{value}
+  	</select>
+  	
+  	<delete id="deleteRelationUser" parameterType="Long">
+  		delete from user_role where ROLE_ID = #{value}
+  	</delete>
+  	
+  	<delete id="deleteRelationResource" parameterType="Long">
+  		delete from role_resource where ROLE_ID = #{value}
+  	</delete>
+</mapper>

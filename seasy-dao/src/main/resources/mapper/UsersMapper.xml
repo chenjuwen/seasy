@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.seasy.dao.mybatis.mapper.UsersMapper" >
+	<resultMap id="resultMap" type="com.seasy.interfaces.dto.UsersDTO">
+		<id property="id" column="USER_ID" jdbcType="BIGINT" />
+		<result property="loginName" column="LOGIN_NAME" jdbcType="VARCHAR" />
+		<result property="username" column="USERNAME" jdbcType="VARCHAR" />
+		<result property="password" column="PASSWORD" jdbcType="VARCHAR" />
+		<result property="salt" column="SALT" jdbcType="VARCHAR" />
+		<result property="phone" column="PHONE" jdbcType="VARCHAR" />
+		<result property="email" column="EMAIL" jdbcType="VARCHAR" />
+		<result property="loginTimes" column="LOGIN_TIMES" jdbcType="BIGINT" />
+		<result property="lastLoginTime" column="LAST_LOGIN_TIME" jdbcType="TIMESTAMP" />
+		<result property="enabled" column="ENABLED" jdbcType="BIGINT" />
+		<result property="operator" column="OPERATOR" jdbcType="VARCHAR" />
+		<result property="operateTime" column="OPERATE_TIME" jdbcType="TIMESTAMP" />
+  	</resultMap>
+  
+  	<sql id="sql_column_list">
+    	USER_ID, LOGIN_NAME, USERNAME, PASSWORD, SALT, PHONE, EMAIL, LOGIN_TIMES, LAST_LOGIN_TIME, ENABLED, OPERATOR, OPERATE_TIME
+  	</sql>
+  
+  	<select id="selectByPrimaryKey" resultMap="resultMap" parameterType="Long">
+    	select
+    	<include refid="sql_column_list" />
+    	from USERS
+    	where user_id = #{value}
+  	</select>
+  
+  	<select id="selectByLoginName" resultMap="resultMap" parameterType="String">
+    	select
+    	<include refid="sql_column_list" />
+    	from USERS
+    	where LOGIN_NAME = #{value}
+  	</select>
+  	
+  	<select id="selectByPage" resultMap="resultMap" parameterType="Map">
+    	select
+    	<include refid="sql_column_list" />
+    	from USERS
+    	where 1=1
+    	<if test="keyword != null">
+    		and (LOGIN_NAME like '%'||#{keyword}||'%' or USERNAME like '%'||#{keyword}||'%')
+    	</if>
+    	<if test="enabled != null">
+    		and ENABLED = #{enabled}
+    	</if>
+    	order by LOGIN_NAME
+  	</select>
+  	
+  	<insert id="insert" parameterType="com.seasy.interfaces.dto.UsersDTO"
+  		useGeneratedKeys="true" keyProperty="id">
+  		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="id">
+			SELECT SEQ_USERS.Nextval as id from DUAL
+		</selectKey>
+    	insert into users (USER_ID, LOGIN_NAME, USERNAME, PASSWORD, SALT, PHONE, EMAIL, LOGIN_TIMES, ENABLED, OPERATOR, OPERATE_TIME) 
+ 		values (#{id}, #{loginName}, #{username}, #{password}, #{salt}, #{phone}, #{email}, 0, #{enabled}, #{operator}, SYSDATE)
+  	</insert>
+  	
+  	<update id="update" parameterType="com.seasy.interfaces.dto.UsersDTO">
+    	update USERS set
+			USERNAME = #{username},
+		    phone = #{phone},
+		    email = #{email},
+		    OPERATOR = #{operator},
+			OPERATE_TIME = SYSDATE
+    	where user_id = #{id}
+  	</update>
+  	
+  	<update id="updatePassword" parameterType="com.seasy.interfaces.dto.UsersDTO">
+    	update USERS set 
+			PASSWORD = #{password},
+			SALT = #{salt} 
+    	where user_id = #{id}
+  	</update>
+  	
+  	<update id="updateState" parameterType="com.seasy.interfaces.dto.UsersDTO">
+    	update USERS set 
+			enabled = #{enabled}
+    	where user_id = #{id}
+  	</update>
+  	
+  	<update id="updateLoginInfo" parameterType="Long">
+    	update USERS set 
+			LOGIN_TIMES = LOGIN_TIMES + 1,
+			LAST_LOGIN_TIME = SYSDATE
+    	where user_id = #{value}
+  	</update>
+  	
+  	<!-- Security -->	
+  	<sql id="resourceSQL">
+		select 
+			distinct 
+			a.ID as id,
+			a.RES_NO as resNo,
+			a.RES_NAME as resName,
+			a.RES_URL as resUrl,
+			a.PARENT_ID as parentId,
+			a.RES_IMG as resImg,
+			a.OWNER as owner
+		from resources a
+  	</sql>
+  	
+	<select id="getAllResourceByUserId" parameterType="long" resultType="com.seasy.interfaces.dto.ResourcesDTO">
+		<include refid="resourceSQL" /> 
+		inner join role_resource b on a.id=b.res_id
+		inner join user_role c on b.role_id=c.role_id
+		inner join users d on c.user_id=d.user_id
+		where d.USER_ID = #{value}
+		order by a.id
+	</select>
+
+	<select id="getTopResourceByUserId" parameterType="long" resultType="com.seasy.interfaces.dto.ResourcesDTO">
+		<include refid="resourceSQL" /> 
+		inner join role_resource b on a.id=b.res_id
+		inner join user_role c on b.role_id=c.role_id
+		inner join users d on c.user_id=d.user_id
+		where d.USER_ID = #{value} and a.parent_id=1
+		order by a.id
+	</select>		
+		
+	<select id="getAllRoleByUserId" parameterType="long" resultType="com.seasy.interfaces.dto.RolesDTO">
+		select 
+		  	distinct
+			a.ROLE_ID as id,
+			a.ROLE_NO as roleNo,
+			a.ROLE_NAME as roleName,
+			a.ROLE_DESC as roleDesc
+		from ROLES a
+		inner join user_role b on a.ROLE_ID=b.role_id
+		where b.user_id = #{value}
+	</select>
+  	
+</mapper>

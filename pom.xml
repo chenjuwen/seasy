@@ -1,0 +1,214 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.seasy.platform</groupId>
+  <artifactId>seasy</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+	
+  <!-- 项目构件部署管理器 -->
+  <!-- mvn clean package deploy -->
+  <distributionManagement>
+	<repository>
+		<!-- 此处的id必须要与settings.xml文件中的server节点的id一致 -->
+		<id>gsafc-repo</id>
+		
+		<!-- 要填写hosted仓库地址，而不是group仓库地址 -->
+		<url>http://localhost:8081/nexus/content/repositories/Csair/</url>
+	</repository>
+  </distributionManagement>
+
+  <dependencies>
+    <dependency>
+  		<groupId>commons-io</groupId>
+  		<artifactId>commons-io</artifactId>
+  		<version>2.4</version>
+	</dependency>
+	<dependency>
+  		<groupId>commons-beanutils</groupId>
+  		<artifactId>commons-beanutils</artifactId>
+  		<version>1.9.2</version>
+	</dependency>
+	<dependency>
+  		<groupId>commons-collections</groupId>
+  		<artifactId>commons-collections</artifactId>
+  		<version>3.2</version>
+	</dependency>
+	<dependency>
+  		<groupId>commons-lang</groupId>
+  		<artifactId>commons-lang</artifactId>
+  		<version>2.6</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.apache.commons</groupId>
+  		<artifactId>commons-lang3</artifactId>
+  		<version>3.1</version>
+	</dependency>
+	<dependency>
+  		<groupId>log4j</groupId>
+  		<artifactId>log4j</artifactId>
+  		<version>1.2.17</version>
+	</dependency>
+    <dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>4.9</version>
+	</dependency>
+	<dependency>
+  		<groupId>commons-codec</groupId>
+  		<artifactId>commons-codec</artifactId>
+  		<version>1.9</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springside</groupId>
+  		<artifactId>springside-core</artifactId>
+  		<version>4.0.0.GA</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.apache.tomcat</groupId>
+  		<artifactId>tomcat-servlet-api</artifactId>
+  		<version>7.0.42</version>
+	</dependency>
+	
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-beans</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-core</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-jdbc</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-webmvc</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-tx</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-test</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-context</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+	<dependency>
+  		<groupId>org.springframework</groupId>
+  		<artifactId>spring-context-support</artifactId>
+  		<version>4.2.5.RELEASE</version>
+	</dependency>
+  </dependencies>
+  
+  
+  <build>
+  	<plugins>
+  		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.5.1</version>
+			<configuration>
+				<source>1.7</source>
+				<target>1.7</target>
+				<showWarnings>true</showWarnings>
+			</configuration>
+		</plugin>
+		
+  		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<version>2.4</version>
+			<configuration>
+				<excludes>
+					<exclude>jedis-config.properties</exclude>
+					<exclude>log4j.properties</exclude>
+					<exclude>system.properties</exclude>
+					<exclude>applicationContext-mail.xml</exclude>
+					
+					<exclude>applicationContext.xml</exclude>
+					<exclude>jdbc.properties</exclude>
+					<exclude>log4j.properties</exclude>
+					<exclude>mybatis-config.xml</exclude>
+					
+					<exclude>applicationContext-shiro.xml</exclude>
+					<exclude>ehcache/ehcache-shiro.xml</exclude>
+				</excludes>
+			</configuration>
+		</plugin>
+
+		<plugin>  
+            <groupId>org.apache.maven.plugins</groupId>  
+            <artifactId>maven-deploy-plugin</artifactId>  
+            <version>2.5</version>  
+        </plugin> 
+		
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.12.3</version>
+			<configuration>
+				<skip>true</skip>
+			</configuration>
+		</plugin>
+  	</plugins>
+  </build>
+  
+  <repositories>
+    <repository>
+      	<snapshots>
+        	<enabled>false</enabled>
+      	</snapshots>
+      	<id>gsafc-repo</id>
+		<url>http://localhost:8081/nexus/content/repositories/Csair/</url>
+		<releases>
+			<enabled>true</enabled> 
+		</releases>
+    </repository>
+  </repositories>
+     
+  <pluginRepositories>
+    <pluginRepository>
+      	<releases>
+			<enabled>true</enabled>
+        	<updatePolicy>never</updatePolicy>
+      	</releases>
+      	<snapshots>
+        	<enabled>false</enabled>
+      	</snapshots>
+      	<id>gsafc-repo</id>
+		<url>http://localhost:8081/nexus/content/repositories/Csair/</url>
+    </pluginRepository>
+  </pluginRepositories>
+  
+  
+  <!-- 子模块项目 -->
+  <modules>
+  	<module>seasy-interface</module>
+  	<module>seasy-core</module>
+  	<module>seasy-commons-cache</module>
+  	<module>seasy-commons-doc</module>
+  	<module>seasy-commons-mail</module>
+  	<module>seasy-commons-freemarker</module>
+  	<module>seasy-dao</module>
+  	<module>seasy-service</module>
+  	<module>seasy-web</module>
+  	<module>seasy-web-security-shiro</module>
+  	<module>seasy-commons-tool</module>
+  </modules>
+</project>

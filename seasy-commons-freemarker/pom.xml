@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  	<modelVersion>4.0.0</modelVersion>
+  	<parent>
+    	<groupId>com.seasy.platform</groupId>
+    	<artifactId>seasy</artifactId>
+    	<version>1.0.0</version>
+  	</parent>
+  	<artifactId>seasy-commons-freemarker</artifactId>
+  	<packaging>jar</packaging>
+  
+  	<properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  	</properties>
+  
+  	<dependencies>
+		<dependency>
+	  		<groupId>org.freemarker</groupId>
+	  		<artifactId>freemarker</artifactId>
+	  		<version>2.3.21</version>
+		</dependency>
+  	</dependencies>
+</project>
